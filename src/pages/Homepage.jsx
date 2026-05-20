@@ -110,9 +110,8 @@ export const Homepage = () => {
 
                     {/* Main Body */}
                     <div className="flex-1 main-body-container px-12 relative">
-                        <div className="sakarya2-overlay flex items-center" aria-hidden="true">
-                            <span className="sakarya2-text">SAKARYA</span>
-                            <span className="sakarya2-digit">2</span>
+                        <div className="sakarya2-overlay flex items-center justify-center" aria-hidden="true">
+                            <img src="/logo.png" alt="SAKARYA2 Logo" className="sakarya2-logo" />
                         </div>
                         <div className="body-ribbon -mb-1">ÜCRETSİZ OYNA</div>
                         <div className="min-h-screen text-amber-50/80">
