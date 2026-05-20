@@ -40,7 +40,7 @@ export const Homepage = () => {
                     <div className="left-side absolute -left-60 top-0 w-60">
                         {/* Ranking Section */}
                         <div className="w-full mb-4">
-                            <h2 className="text-amber-100 text-lg font-bold uppercase text-center mb-4 tracking-widest border-b border-amber-900/20 pb-2">En İyiler</h2>
+                            <h2 className="text-amber-100 text-lg font-bold uppercase text-center mb-4 tracking-widest border-b border-amber-900/20 pb-2">En İyi Oyuncular</h2>
                             <div className="space-y-2">
                                 {[
                                     { name: 'Revenge', level: 120, rank: 1 },
@@ -64,32 +64,39 @@ export const Homepage = () => {
                                 Tümünü Gör
                             </button>
                         </div>
-
+ 
                         <div className="glowing-divider"></div>
 
-                        {/* Server Info Section */}
+                        {/* Guild Ranking Section */}
                         <div className="w-full mb-4">
-                            <h2 className="text-amber-100 text-lg font-bold uppercase text-center mb-4 tracking-widest border-b border-amber-900/20 pb-2">Sunucu Bilgi</h2>
-                            <div className="grid grid-cols-2 gap-2">
-                                <div className="bg-black/40 p-2 border border-amber-900/20 text-center">
-                                    <p className="text-[9px] text-amber-200/50 uppercase">Tecrübe</p>
-                                    <p className="text-amber-100 font-bold text-xs">%200</p>
-                                </div>
-                                <div className="bg-black/40 p-2 border border-amber-900/20 text-center">
-                                    <p className="text-[9px] text-amber-200/50 uppercase">Eşya</p>
-                                    <p className="text-amber-100 font-bold text-xs">%150</p>
-                                </div>
-                                <div className="bg-black/40 p-2 border border-amber-900/20 text-center">
-                                    <p className="text-[9px] text-amber-200/50 uppercase">Yang</p>
-                                    <p className="text-amber-100 font-bold text-xs">%200</p>
-                                </div>
-                                <div className="bg-black/40 p-2 border border-amber-900/20 text-center">
-                                    <p className="text-[9px] text-amber-200/50 uppercase">Zorluk</p>
-                                    <p className="text-amber-100 font-bold text-xs">Orta</p>
-                                </div>
+                            <h2 className="text-amber-100 text-lg font-bold uppercase text-center mb-4 tracking-widest border-b border-amber-900/20 pb-2">En İyi Loncalar</h2>
+                            <div className="space-y-2">
+                                {[
+                                    { name: 'Kara Kartallar', members: 84, power: 'A+' },
+                                    { name: 'Gümüş Ejder', members: 76, power: 'A' },
+                                    { name: 'Kırmızı Aslan', members: 68, power: 'B+' },
+                                    { name: 'Gece Avcıları', members: 59, power: 'B' },
+                                    { name: 'Fırtına Klanı', members: 51, power: 'B-' },
+                                ].map((guild, index) => (
+                                    <div key={guild.name} className="flex justify-between items-center px-2 py-1 bg-black/20 border border-amber-900/10 hover:border-amber-700/30 transition-colors">
+                                        <div className="flex items-center gap-2">
+                                            <span className={`text-[10px] font-bold w-4 h-4 flex items-center justify-center rounded-full ${index < 3 ? 'bg-amber-600 text-black' : 'bg-zinc-800 text-amber-100/50'}`}>
+                                                {index + 1}
+                                            </span>
+                                            <span className="text-amber-100 text-xs truncate w-28">{guild.name}</span>
+                                        </div>
+                                        <div className="text-right">
+                                            <p className="text-amber-400 text-[10px] font-mono">Üye {guild.members}</p>
+                                            <p className="text-amber-200 text-[10px] uppercase">Güç {guild.power}</p>
+                                        </div>
+                                    </div>
+                                ))}
                             </div>
+                            <button className="w-full mt-4 py-1.5 text-[10px] uppercase tracking-widest text-amber-200/50 hover:text-amber-100 border border-amber-900/30 hover:border-amber-700 transition-all">
+                                Tümünü Gör
+                            </button>
                         </div>
-
+ 
                         <div className="glowing-divider"></div>
 
                         {/* Social Section */}
