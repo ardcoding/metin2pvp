@@ -36,8 +36,8 @@ export const Homepage = () => {
                     minHeight: '100vh'
                 }}
             >
-                <div className="flex mt-[50vh] w-[750px] mx-auto border-x border-amber-900/30 relative shadow-2xl min-h-[800px] bg-black/40">
-                    <div className="left-side absolute -left-[240px] top-0 w-[240px]">
+                <div className="flex mt-[50vh] w-187.5 mx-auto border-x border-amber-900/30 relative shadow-2xl min-h-200 bg-black/40">
+                    <div className="left-side absolute -left-60 top-0 w-60">
                         {/* Ranking Section */}
                         <div className="w-full mb-4">
                             <h2 className="text-amber-100 text-lg font-bold uppercase text-center mb-4 tracking-widest border-b border-amber-900/20 pb-2">En İyiler</h2>
@@ -129,7 +129,7 @@ export const Homepage = () => {
                     </div>
 
                     {/* Right Side */}
-                    <div className="right-side absolute -right-[240px] top-0 w-[240px]">
+                    <div className="right-side absolute -right-60 top-0 w-60">
                         <div className="w-full mb-4 -mt-4">
                             <h2 className="text-amber-100 text-xl font-bold uppercase text-center mb-4 tracking-widest border-b border-amber-900/20 pb-2">Giriş Yap</h2>
                             <div className="space-y-3">
@@ -139,7 +139,7 @@ export const Homepage = () => {
                                 <div className="relative">
                                     <input type="password" placeholder="Şifre" className="w-full bg-black/60 border border-amber-900/50 p-2 pl-3 text-sm text-amber-50 focus:outline-none focus:border-amber-600 transition-colors placeholder:text-amber-100/30" />
                                 </div>
-                                <button className="w-full bg-gradient-to-b from-amber-700 to-amber-900 hover:from-amber-600 hover:to-amber-800 text-amber-50 font-bold py-2.5 transition-all uppercase text-xs tracking-widest border border-amber-600/30 shadow-lg">Giriş Yap</button>
+                                <button className="w-full bg-linear-to-b from-amber-700 to-amber-900 hover:from-amber-600 hover:to-amber-800 text-amber-50 font-bold py-2.5 transition-all uppercase text-xs tracking-widest border border-amber-600/30 shadow-lg">Giriş Yap</button>
                                 <div className="flex justify-between text-[10px] text-amber-200/50 uppercase tracking-tighter pt-1">
                                     <a href="#" className="hover:text-amber-400 transition-colors">Kayıt Ol</a>
                                     <a href="#" className="hover:text-amber-400 transition-colors">Şifremi Unuttum</a>
