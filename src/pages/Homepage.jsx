@@ -24,7 +24,6 @@ export const Homepage = () => {
     return (
         <div className="min-h-screen h-full bg-black/20">
             <div className="absolute top-0 left-0 w-full h-10 header z-50"></div>
-
             <div
                 className="flex justify-center transition-all duration-300 ease-out"
                 style={{
@@ -109,15 +108,19 @@ export const Homepage = () => {
                         </div>
                     </div>
 
-
                     {/* Main Body */}
                     <div className="flex-1 main-body-container px-12 relative">
+                        <div className="sakarya2-overlay flex items-center" aria-hidden="true">
+                            <span className="sakarya2-text">SAKARYA</span>
+                            <span className="sakarya2-digit">2</span>
+                        </div>
                         <div className="body-ribbon -mb-1">ÜCRETSİZ OYNA</div>
                         <div className="min-h-screen text-amber-50/80">
-                            <h1 className="text-5xl font-bold uppercase text-center mb-6 tracking-[0.35em] border-b border-amber-900/20 pb-4 bg-linear-to-b from-red-900 via-red-700 to-red-500 text-transparent bg-clip-text drop-shadow-[0_18px_30px_rgba(220,38,38,0.45)]"
-                                style={{ textShadow: '0 2px 6px rgba(0,0,0,0.35), 0 8px 20px rgba(139,0,0,0.35), 0 16px 40px rgba(139,0,0,0.25)' }}>
-                                Sakarya2
-                            </h1>
+                            <img 
+                                src="bodycontent-2.jpeg" 
+                                alt="Body Content" 
+                                className="w-full h-auto rounded-lg shadow-lg" 
+                            />
                             <img 
                                 src="bodycontent.jpeg" 
                                 alt="Body Content" 
