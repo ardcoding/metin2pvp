@@ -2,26 +2,26 @@
   margin: 0;
   padding: 0;
   min-height: 160vh;
-  background-image: url('background.jpg');
+  background-image: url('/background.jpg');
   background-position: top center;
   background-size: cover;
   background-repeat: no-repeat;
-  cursor: url('cursor.cur'), auto;
+  cursor: url('/cursor.cur'), auto;
   overflow-x: hidden;
 }
 
 * {
-  cursor: url('cursor.cur'), auto;
+  cursor: url('/cursor.cur'), auto;
 }
 
 .header {
-  background-image: url("header-bg.png");
+  background-image: url("/header-bg.png");
   background-position: center;
   background-size: cover;
 }
 
 .main-body-container {
-  background-image: url("body-bg.png");
+  background-image: url("/body-bg.png");
   background-repeat: repeat-y;
   background-size: 100% auto;
   position: relative;
@@ -36,7 +36,7 @@
   transform: translateX(-50%);
   width: 111.7%;
   height: 159.8px;
-  background-image: url("body-border-top.png");
+  background-image: url("/body-border-top.png");
   background-position: center;
   background-size: contain;
   background-repeat: no-repeat;
@@ -85,7 +85,7 @@
   left: -3.2%;
   width: 106.3%;
   height: 80px;
-  background-image: url("body-border-bottom.png");
+  background-image: url("/body-border-bottom.png");
   background-position: center;
   background-size: 100% 100%;
   background-repeat: no-repeat;
@@ -93,7 +93,7 @@
 }
 
 .body {
-  background-image: url("bg8.png");
+  background-image: url("/bg8.png");
   background-position: cover;
   background-size: contain;
 }
@@ -102,7 +102,7 @@
   /* Adjust based on the container */
   width: 240px;
   min-height: 700px;
-  background-image: url("left-side-bg.png");
+  background-image: url("/left-side-bg.png");
   background-position: top center;
   background-size: 100% 100%;
   background-repeat: no-repeat;
@@ -126,7 +126,7 @@
   left: 0;
   width: 100%;
   height: 20px;
-  background: url("left-border.png") no-repeat center;
+  background: url("/left-border.png") no-repeat center;
   background-size: 100% 100%;
 }
 
@@ -137,13 +137,13 @@
   left: 0;
   width: 100%;
   height: 20px;
-  background: url("left-border.png") no-repeat center;
+  background: url("/left-border.png") no-repeat center;
   background-size: 100% 100%;
   transform: scaleY(-1);
 }
 
 .left-side-content {
-  background-image: url("left-side-bg.png");
+  background-image: url("/left-side-bg.png");
   background-position: contain;
   background-size: cover;
   background-repeat: no-repeat;
@@ -179,7 +179,7 @@
 .right-side {
   width: 240px;
   min-height: 700px;
-  background-image: url("right-bg.png");
+  background-image: url("/right-bg.png");
   background-position: top center;
   background-size: 100% 100%;
   background-repeat: no-repeat;
@@ -200,7 +200,7 @@
   left: 0;
   width: 100%;
   height: 20px;
-  background: url("right-border.png") no-repeat center;
+  background: url("/right-border.png") no-repeat center;
   background-size: 100% 100%;
 }
 
@@ -211,7 +211,7 @@
   left: 0;
   width: 100%;
   height: 20px;
-  background: url("right-border.png") no-repeat center;
+  background: url("/right-border.png") no-repeat center;
   background-size: 100% 100%;
   transform: scaleY(-1);
 }
