@@ -4,6 +4,7 @@ import { Layout } from './Layout'
 import { Homepage } from './pages/Homepage'
 import { Ranking } from './pages/Ranking'
 import { Register } from './pages/Register'
+import { Support } from './pages/Support'
 
 function App() {
   return (
@@ -13,6 +14,7 @@ function App() {
           <Route index element={<Homepage />} />
           <Route path="register" element={<Register />} />
           <Route path="ranking" element={<Ranking />} />
+          <Route path="support" element={<Support />} />
         </Route>
       </Routes>
     </BrowserRouter>

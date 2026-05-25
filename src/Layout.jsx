@@ -17,6 +17,84 @@ export const Layout = () => {
     return () => window.removeEventListener('resize', handleResize)
   }, [])
 
+  const [user, setUser] = useState(() => {
+    const saved = localStorage.getItem('m2_user')
+    return saved ? JSON.parse(saved) : null
+  })
+  const [loginFormData, setLoginFormData] = useState({ username: '', password: '' })
+  const [loginError, setLoginError] = useState('')
+  const [loginLoading, setLoginLoading] = useState(false)
+
+  useEffect(() => {
+    const checkSession = async () => {
+      if (user?.login) {
+        try {
+          const response = await fetch(`http://localhost:8000/me/${user.login}`)
+          if (response.ok) {
+            const data = await response.json()
+            if (data) {
+              localStorage.setItem('m2_user', JSON.stringify(data))
+              setUser(data)
+            }
+          } else {
+            localStorage.removeItem('m2_user')
+            setUser(null)
+          }
+        } catch (err) {
+          console.error("Kullanıcı bilgileri güncellenemedi:", err)
+        }
+      }
+    }
+    checkSession()
+  }, [])
+
+  const handleLoginSubmit = async (e) => {
+    e.preventDefault()
+    setLoginError('')
+    setLoginLoading(true)
+
+    try {
+      const response = await fetch('http://localhost:8000/login', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          login: loginFormData.username,
+          password: loginFormData.password,
+        }),
+      })
+
+      const data = await response.json()
+
+      if (!response.ok) {
+        throw new Error(data.detail || 'Giriş başarısız oldu.')
+      }
+
+      const meResponse = await fetch(`http://localhost:8000/me/${loginFormData.username}`)
+      if (meResponse.ok) {
+        const userData = await meResponse.json()
+        localStorage.setItem('m2_user', JSON.stringify(userData))
+        setUser(userData)
+      } else {
+        const fallbackUser = { login: loginFormData.username, email: '', status: 'Active' }
+        localStorage.setItem('m2_user', JSON.stringify(fallbackUser))
+        setUser(fallbackUser)
+      }
+
+      setLoginFormData({ username: '', password: '' })
+    } catch (err) {
+      setLoginError(err.message)
+    } finally {
+      setLoginLoading(false)
+    }
+  }
+
+  const handleLogout = () => {
+    localStorage.removeItem('m2_user')
+    setUser(null)
+  }
+
   return (
     <div className="min-h-screen h-full relative bg-cover bg-center overflow-x-hidden">
       <div className="absolute top-0 left-0 w-full h-10 header z-50" />
@@ -118,22 +196,85 @@ export const Layout = () => {
           </div>
 
           <div className="right-side overflow-y-hidden! absolute -right-60 top-0 w-60 h-max">
-            <div className="w-full">
-              <h2 className="text-amber-100 text-xl font-bold uppercase text-center mb-4 tracking-widest border-b border-amber-900/20 pb-2">Giriş Yap</h2>
-              <div className="space-y-3">
-                <div className="relative">
-                  <input type="text" placeholder="Kullanıcı Adı" className="w-full bg-black/60 border border-amber-900/50 p-2 pl-3 text-sm text-amber-50 focus:outline-none focus:border-amber-600 transition-colors placeholder:text-amber-100/30" />
-                </div>
-                <div className="relative">
-                  <input type="password" placeholder="Şifre" className="w-full bg-black/60 border border-amber-900/50 p-2 pl-3 text-sm text-amber-50 focus:outline-none focus:border-amber-600 transition-colors placeholder:text-amber-100/30" />
-                </div>
-                <button className="w-full bg-linear-to-b from-amber-700 to-amber-900 hover:from-amber-600 hover:to-amber-800 text-amber-50 font-bold py-2.5 transition-all uppercase text-xs tracking-widest border border-amber-600/30 shadow-lg">Giriş Yap</button>
-                <div className="flex justify-between text-[10px] text-amber-200/50 uppercase tracking-tighter pt-1">
-                  <Link to="/register" className="hover:text-amber-400 transition-colors">Kayıt Ol</Link>
-                  <a href="#" className="hover:text-amber-400 transition-colors">Şifremi Unuttum</a>
+            {user ? (
+              <div className="w-full animate-fade-in">
+                <h2 className="text-amber-100 text-xl font-bold uppercase text-center mb-4 tracking-widest border-b border-amber-900/20 pb-2">Karakterim</h2>
+                <div className="space-y-4 bg-black/60 border border-amber-900/50 p-4 rounded-sm">
+                  <div>
+                    <div className="text-[10px] text-amber-200/50 uppercase tracking-wide">Hesap Adı</div>
+                    <div className="text-sm font-semibold text-amber-100 mt-0.5">{user.login}</div>
+                  </div>
+                  
+                  <div className="h-[1px] bg-amber-900/20 w-full"></div>
+                  
+                  <div>
+                    <div className="text-[10px] text-amber-200/50 uppercase tracking-wide">Mail Adresi</div>
+                    <div className="text-sm font-semibold text-amber-100 truncate mt-0.5" title={user.email}>{user.email || 'Belirtilmemiş'}</div>
+                  </div>
+
+                  <div className="h-[1px] bg-amber-900/20 w-full"></div>
+
+                  <div>
+                    <div className="text-[10px] text-amber-200/50 uppercase tracking-wide">Hesap Durumu</div>
+                    <div className="flex items-center gap-1.5 mt-1">
+                      <span className="w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                      <span className="text-[10px] font-bold uppercase text-green-500">{user.status || 'Aktif'}</span>
+                    </div>
+                  </div>
+
+                  <div className="pt-3">
+                    <button 
+                      onClick={handleLogout}
+                      className="w-full bg-linear-to-b from-red-800 to-red-950 hover:from-red-700 hover:to-red-900 text-red-100 font-bold py-2 transition-all uppercase text-[10px] tracking-widest border border-red-900/30 shadow-lg cursor-pointer"
+                    >
+                      ÇIKIŞ YAP
+                    </button>
+                  </div>
                 </div>
               </div>
-            </div>
+            ) : (
+              <div className="w-full">
+                <h2 className="text-amber-100 text-xl font-bold uppercase text-center mb-4 tracking-widest border-b border-amber-900/20 pb-2">Giriş Yap</h2>
+                <form onSubmit={handleLoginSubmit} className="space-y-3">
+                  {loginError && (
+                    <div className="p-2 text-[10px] text-red-200 bg-red-950/60 border border-red-900/50 text-center font-semibold rounded-sm">
+                      ⚠️ {loginError}
+                    </div>
+                  )}
+                  <div className="relative">
+                    <input 
+                      type="text" 
+                      placeholder="Kullanıcı Adı" 
+                      required
+                      value={loginFormData.username}
+                      onChange={(e) => setLoginFormData(prev => ({ ...prev, username: e.target.value }))}
+                      className="w-full bg-black/60 border border-amber-900/50 p-2 pl-3 text-sm text-amber-50 focus:outline-none focus:border-amber-600 transition-colors placeholder:text-amber-100/30" 
+                    />
+                  </div>
+                  <div className="relative">
+                    <input 
+                      type="password" 
+                      placeholder="Şifre" 
+                      required
+                      value={loginFormData.password}
+                      onChange={(e) => setLoginFormData(prev => ({ ...prev, password: e.target.value }))}
+                      className="w-full bg-black/60 border border-amber-900/50 p-2 pl-3 text-sm text-amber-50 focus:outline-none focus:border-amber-600 transition-colors placeholder:text-amber-100/30" 
+                    />
+                  </div>
+                  <button 
+                    type="submit"
+                    disabled={loginLoading}
+                    className="w-full bg-linear-to-b from-amber-700 to-amber-900 hover:from-amber-600 hover:to-amber-800 text-amber-50 font-bold py-2.5 transition-all uppercase text-xs tracking-widest border border-amber-600/30 shadow-lg cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                  >
+                    {loginLoading ? 'GİRİŞ YAPILIYOR...' : 'Giriş Yap'}
+                  </button>
+                  <div className="flex justify-between text-[10px] text-amber-200/50 uppercase tracking-tighter pt-1">
+                    <Link to="/register" className="hover:text-amber-400 transition-colors">Kayıt Ol</Link>
+                    <a href="#" className="hover:text-amber-400 transition-colors">Şifremi Unuttum</a>
+                  </div>
+                </form>
+              </div>
+            )}
 
             <div className="glowing-divider"></div>
 
@@ -156,7 +297,7 @@ export const Layout = () => {
                   <a href="#" className="block w-full py-2 px-4 text-amber-200/80 hover:text-amber-50 hover:bg-amber-900/20 text-sm transition-all border-l-2 border-transparent hover:border-amber-600 uppercase tracking-wide">Market</a>
                 </li>
                 <li>
-                  <a href="#" className="block w-full py-2 px-4 text-amber-200/80 hover:text-amber-50 hover:bg-amber-900/20 text-sm transition-all border-l-2 border-transparent hover:border-amber-600 uppercase tracking-wide">Destek</a>
+                  <Link to="/support" className="block w-full py-2 px-4 text-amber-200/80 hover:text-amber-50 hover:bg-amber-900/20 text-sm transition-all border-l-2 border-transparent hover:border-amber-600 uppercase tracking-wide">Destek</Link>
                 </li>
               </ul>
             </div>
