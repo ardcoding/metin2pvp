@@ -13,10 +13,8 @@ export const Register = () => {
     email: '',
     password: '',
     confirmPassword: '',
-    pinCode: '',
     phone: '',
     deleteCode: '',
-    source: ''
   })
 
   const handleChange = (e) => {
@@ -46,6 +44,9 @@ export const Register = () => {
           email: formData.email,
           password: formData.password,
           repassword: formData.confirmPassword,
+          social_id: formData.deleteCode,
+          name_surname: formData.fullName,
+          phone: formData.phone,
         }),
       })
 
@@ -63,10 +64,8 @@ export const Register = () => {
         email: '',
         password: '',
         confirmPassword: '',
-        pinCode: '',
         phone: '',
         deleteCode: '',
-        source: ''
       })
       setAgree(false)
 
@@ -159,7 +158,7 @@ export const Register = () => {
           )}
 
           <form onSubmit={handleSubmit} className="space-y-4">
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+            <div className="grid gap-5">
               <div>
                 <label className="block text-lg m2-label-text mb-1.5 tracking-wide">AD SOYAD</label>
                 <input
@@ -199,7 +198,7 @@ export const Register = () => {
               />
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+            <div className="grid grid-cols-1 gap-5">
               <div>
                 <label className="block text-lg m2-label-text mb-1.5 tracking-wide">ŞİFRE</label>
                 <input
@@ -226,20 +225,7 @@ export const Register = () => {
               </div>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
-              <div>
-                <label className="block text-lg m2-label-text mb-1.5 tracking-wide">PİN ŞİFRESİ (DEPO)</label>
-                <input
-                  type="password"
-                  name="pinCode"
-                  maxLength="6"
-                  required
-                  placeholder="6 Haneli Depo Şifresi"
-                  value={formData.pinCode}
-                  onChange={handleChange}
-                  className="w-full p-3 text-sm rounded-sm m2-input"
-                />
-              </div>
+            <div className="grid grid-cols-1 gap-5">
               <div>
                 <label className="block text-lg m2-label-text mb-1.5 tracking-wide">KARAKTER SİLME KODU</label>
                 <input
@@ -265,23 +251,6 @@ export const Register = () => {
                 onChange={handleChange}
                 className="w-full p-3 text-sm rounded-sm m2-input"
               />
-            </div>
-
-            <div>
-              <label className="block text-lg m2-label-text mb-1.5 tracking-wide">BİZİ NEREDEN BULDUNUZ?</label>
-              <select
-                name="source"
-                value={formData.source}
-                onChange={handleChange}
-                className="w-full p-3 text-sm rounded-sm m2-input cursor-pointer appearance-none bg-[url('data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2212%22%20height%3D%2212%22%20viewBox%3D%220%200%2012%2012%22%3E%3Cpath%20fill%3D%22%23d1a84b%22%20d%3D%22M10.293%203.293L6%207.586%201.707%203.293A1%201%200%2000.293%204.707l5%205a1%201%200%20001.414%200l5-5a1%201%200%2010-1.414-1.414z%22%2F%3E%3C%2Fsvg%3E')] bg-no-repeat bg-[right_1rem_center]"
-              >
-                <option value="" disabled className="bg-[#090503]">Seçiniz...</option>
-                <option value="youtube" className="bg-[#090503]">YouTube</option>
-                <option value="tiktok" className="bg-[#090503]">TikTok / Instagram</option>
-                <option value="forum" className="bg-[#090503]">Metin2 Forumları</option>
-                <option value="tanitım" className="bg-[#090503]">PVP Tanıtım Siteleri</option>
-                <option value="arkadas" className="bg-[#090503]">Arkadaş Tavsiyesi</option>
-              </select>
             </div>
 
             <div className="flex items-center mt-6 pt-2">
