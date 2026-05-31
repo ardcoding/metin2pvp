@@ -1,0 +1,18 @@
+export const COUNTRIES = [
+  { name: 'Türkiye', code: 'TR', dialCode: '+90', emoji: '🇹🇷', placeholder: '505 123 4567', maxDigits: 10 },
+  { name: 'Almanya', code: 'DE', dialCode: '+49', emoji: '🇩🇪', placeholder: '176 12345678', maxDigits: 11 },
+  { name: 'Azerbaycan', code: 'AZ', dialCode: '+994', emoji: '🇦🇿', placeholder: '50 123 4567', maxDigits: 9 },
+  { name: 'Birleşik Krallık', code: 'GB', dialCode: '+44', emoji: '🇬🇧', placeholder: '7123 456789', maxDigits: 10 },
+  { name: 'Amerika Birleşik Devletleri', code: 'US', dialCode: '+1', emoji: '🇺🇸', placeholder: '201 555 0123', maxDigits: 10 },
+  { name: 'Fransa', code: 'FR', dialCode: '+33', emoji: '🇫🇷', placeholder: '6 1234 5678', maxDigits: 9 },
+  { name: 'İtalya', code: 'IT', dialCode: '+39', emoji: '🇮🇹', placeholder: '312 345 6789', maxDigits: 10 },
+  { name: 'Polonya', code: 'PL', dialCode: '+48', emoji: '🇵🇱', placeholder: '501 234 567', maxDigits: 9 },
+  { name: 'Romanya', code: 'RO', dialCode: '+40', emoji: '🇷🇴', placeholder: '721 234 567', maxDigits: 9 },
+  { name: 'Yunanistan', code: 'GR', dialCode: '+30', emoji: '🇬🇷', placeholder: '691 234 5678', maxDigits: 10 },
+  { name: 'Bulgaristan', code: 'BG', dialCode: '+359', emoji: '🇧🇬', placeholder: '87 123 4567', maxDigits: 9 },
+  { name: 'Hollanda', code: 'NL', dialCode: '+31', emoji: '🇳🇱', placeholder: '6 1234 5678', maxDigits: 9 },
+  { name: 'Avusturya', code: 'AT', dialCode: '+43', emoji: '🇦🇹', placeholder: '650 1234567', maxDigits: 10 },
+  { name: 'İsviçre', code: 'CH', dialCode: '+41', emoji: '🇨🇭', placeholder: '76 123 45 67', maxDigits: 9 },
+  { name: 'Belçika', code: 'BE', dialCode: '+32', emoji: '🇧🇪', placeholder: '470 12 34 56', maxDigits: 9 },
+  { name: 'İspanya', code: 'ES', dialCode: '+34', emoji: '🇪🇸', placeholder: '612 34 56 78', maxDigits: 9 },
+];

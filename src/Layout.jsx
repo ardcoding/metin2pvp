@@ -1,6 +1,8 @@
 import { useState, useEffect } from 'react'
 import { Outlet, Link } from 'react-router-dom'
 import { FaDiscord, FaYoutube, FaInstagram } from 'react-icons/fa'
+import { useFormik } from 'formik'
+import * as Yup from 'yup'
 
 export const Layout = () => {
   const [scale, setScale] = useState(1)
@@ -21,7 +23,6 @@ export const Layout = () => {
     const saved = localStorage.getItem('m2_user')
     return saved ? JSON.parse(saved) : null
   })
-  const [loginFormData, setLoginFormData] = useState({ username: '', password: '' })
   const [loginError, setLoginError] = useState('')
   const [loginLoading, setLoginLoading] = useState(false)
 
@@ -48,47 +49,62 @@ export const Layout = () => {
     checkSession()
   }, [])
 
-  const handleLoginSubmit = async (e) => {
-    e.preventDefault()
-    setLoginError('')
-    setLoginLoading(true)
+  const loginFormik = useFormik({
+    initialValues: {
+      username: '',
+      password: '',
+    },
+    validationSchema: Yup.object({
+      username: Yup.string()
+        .min(4, 'En az 4 karakter olmalıdır.')
+        .max(16, 'En fazla 16 karakter olmalıdır.')
+        .required('Kullanıcı adı zorunludur.'),
+      password: Yup.string()
+        .min(4, 'En az 4 karakter olmalıdır.')
+        .max(20, 'En fazla 20 karakter olmalıdır.')
+        .required('Şifre zorunludur.'),
+    }),
+    onSubmit: async (values) => {
+      setLoginError('')
+      setLoginLoading(true)
 
-    try {
-      const response = await fetch('http://localhost:8000/login', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          login: loginFormData.username,
-          password: loginFormData.password,
-        }),
-      })
+      try {
+        const response = await fetch('http://localhost:8000/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            login: values.username,
+            password: values.password,
+          }),
+        })
 
-      const data = await response.json()
+        const data = await response.json()
 
-      if (!response.ok) {
-        throw new Error(data.detail || 'Giriş başarısız oldu.')
+        if (!response.ok) {
+          throw new Error(data.detail || 'Giriş başarısız oldu.')
+        }
+
+        const meResponse = await fetch(`http://localhost:8000/me/${values.username}`)
+        if (meResponse.ok) {
+          const userData = await meResponse.json()
+          localStorage.setItem('m2_user', JSON.stringify(userData))
+          setUser(userData)
+        } else {
+          const fallbackUser = { login: values.username, email: '', status: 'Active' }
+          localStorage.setItem('m2_user', JSON.stringify(fallbackUser))
+          setUser(fallbackUser)
+        }
+
+        loginFormik.resetForm()
+      } catch (err) {
+        setLoginError(err.message)
+      } finally {
+        setLoginLoading(false)
       }
-
-      const meResponse = await fetch(`http://localhost:8000/me/${loginFormData.username}`)
-      if (meResponse.ok) {
-        const userData = await meResponse.json()
-        localStorage.setItem('m2_user', JSON.stringify(userData))
-        setUser(userData)
-      } else {
-        const fallbackUser = { login: loginFormData.username, email: '', status: 'Active' }
-        localStorage.setItem('m2_user', JSON.stringify(fallbackUser))
-        setUser(fallbackUser)
-      }
-
-      setLoginFormData({ username: '', password: '' })
-    } catch (err) {
-      setLoginError(err.message)
-    } finally {
-      setLoginLoading(false)
     }
-  }
+  })
 
   const handleLogout = () => {
     localStorage.removeItem('m2_user')
@@ -192,7 +208,7 @@ export const Layout = () => {
 
           <div className="flex-1 main-body-container px-12 relative">
             <div className="body-ribbon -mb-1">ÜCRETSİZ OYNA</div>
-            <Outlet />
+            <Outlet context={{ user, setUser }} />
           </div>
 
           <div className="right-side overflow-y-hidden! absolute -right-60 top-0 w-60 h-max">
@@ -222,7 +238,13 @@ export const Layout = () => {
                     </div>
                   </div>
 
-                  <div className="pt-3">
+                  <div className="pt-3 space-y-2">
+                    <Link 
+                      to="/profile"
+                      className="block w-full text-center bg-linear-to-b from-amber-700 to-amber-900 hover:from-amber-600 hover:to-amber-800 text-amber-50 font-bold py-2 transition-all uppercase text-[10px] tracking-widest border border-amber-600/30 shadow-lg"
+                    >
+                      PROFİL PANELİ
+                    </Link>
                     <button 
                       onClick={handleLogout}
                       className="w-full bg-linear-to-b from-red-800 to-red-950 hover:from-red-700 hover:to-red-900 text-red-100 font-bold py-2 transition-all uppercase text-[10px] tracking-widest border border-red-900/30 shadow-lg cursor-pointer"
@@ -235,7 +257,7 @@ export const Layout = () => {
             ) : (
               <div className="w-full">
                 <h2 className="text-amber-100 text-xl font-bold uppercase text-center mb-4 tracking-widest border-b border-amber-900/20 pb-2">Giriş Yap</h2>
-                <form onSubmit={handleLoginSubmit} className="space-y-3">
+                <form onSubmit={loginFormik.handleSubmit} className="space-y-3">
                   {loginError && (
                     <div className="p-2 text-[10px] text-red-200 bg-red-950/60 border border-red-900/50 text-center font-semibold rounded-sm">
                       ⚠️ {loginError}
@@ -244,26 +266,52 @@ export const Layout = () => {
                   <div className="relative">
                     <input 
                       type="text" 
+                      name="username"
                       placeholder="Kullanıcı Adı" 
-                      required
-                      value={loginFormData.username}
-                      onChange={(e) => setLoginFormData(prev => ({ ...prev, username: e.target.value }))}
-                      className="w-full bg-black/60 border border-amber-900/50 p-2 pl-3 text-sm text-amber-50 focus:outline-none focus:border-amber-600 transition-colors placeholder:text-amber-100/30" 
+                      maxLength={16}
+                      value={loginFormik.values.username}
+                      onChange={(e) => {
+                        if (e.target.value.length <= 16) {
+                          loginFormik.handleChange(e);
+                        }
+                      }}
+                      onBlur={loginFormik.handleBlur}
+                      className={`w-full bg-black/60 border p-2 pl-3 text-sm text-amber-50 focus:outline-none focus:border-amber-600 transition-colors placeholder:text-amber-100/30 ${
+                        loginFormik.touched.username && loginFormik.errors.username ? 'border-red-600 focus:border-red-500' : 'border-amber-900/50'
+                      }`}
                     />
+                    {loginFormik.touched.username && loginFormik.errors.username && (
+                      <div className="text-red-400 text-[10px] mt-0.5 ml-1 font-semibold italic">
+                        ⚠️ {loginFormik.errors.username}
+                      </div>
+                    )}
                   </div>
                   <div className="relative">
                     <input 
                       type="password" 
+                      name="password"
                       placeholder="Şifre" 
-                      required
-                      value={loginFormData.password}
-                      onChange={(e) => setLoginFormData(prev => ({ ...prev, password: e.target.value }))}
-                      className="w-full bg-black/60 border border-amber-900/50 p-2 pl-3 text-sm text-amber-50 focus:outline-none focus:border-amber-600 transition-colors placeholder:text-amber-100/30" 
+                      maxLength={20}
+                      value={loginFormik.values.password}
+                      onChange={(e) => {
+                        if (e.target.value.length <= 20) {
+                          loginFormik.handleChange(e);
+                        }
+                      }}
+                      onBlur={loginFormik.handleBlur}
+                      className={`w-full bg-black/60 border p-2 pl-3 text-sm text-amber-50 focus:outline-none focus:border-amber-600 transition-colors placeholder:text-amber-100/30 ${
+                        loginFormik.touched.password && loginFormik.errors.password ? 'border-red-600 focus:border-red-500' : 'border-amber-900/50'
+                      }`}
                     />
+                    {loginFormik.touched.password && loginFormik.errors.password && (
+                      <div className="text-red-400 text-[10px] mt-0.5 ml-1 font-semibold italic">
+                        ⚠️ {loginFormik.errors.password}
+                      </div>
+                    )}
                   </div>
                   <button 
                     type="submit"
-                    disabled={loginLoading}
+                    disabled={loginLoading || !loginFormik.isValid}
                     className="w-full bg-linear-to-b from-amber-700 to-amber-900 hover:from-amber-600 hover:to-amber-800 text-amber-50 font-bold py-2.5 transition-all uppercase text-xs tracking-widest border border-amber-600/30 shadow-lg cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     {loginLoading ? 'GİRİŞ YAPILIYOR...' : 'Giriş Yap'}

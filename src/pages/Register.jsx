@@ -1,83 +1,113 @@
 import { useState } from 'react'
 import { useNavigate } from 'react-router-dom'
+import { useFormik } from 'formik'
+import * as Yup from 'yup'
+import { parsePhoneNumberFromString, AsYouType } from 'libphonenumber-js'
+import { COUNTRIES } from '../utils/countries'
 
 export const Register = () => {
   const navigate = useNavigate()
-  const [agree, setAgree] = useState(false)
   const [error, setError] = useState('')
   const [success, setSuccess] = useState('')
   const [loading, setLoading] = useState(false)
-  const [formData, setFormData] = useState({
-    fullName: '',
-    username: '',
-    email: '',
-    password: '',
-    confirmPassword: '',
-    phone: '',
-    deleteCode: '',
-  })
 
-  const handleChange = (e) => {
-    const { name, value } = e.target
-    setFormData((prev) => ({ ...prev, [name]: value }))
-  }
-
-  const handleSubmit = async (e) => {
-    e.preventDefault()
-    setError('')
-    setSuccess('')
-
-    if (formData.password !== formData.confirmPassword) {
-      setError('Şifreler uyuşmuyor!')
-      return
-    }
-
-    setLoading(true)
-    try {
-      const response = await fetch('http://localhost:8000/register', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          login: formData.username,
-          email: formData.email,
-          password: formData.password,
-          repassword: formData.confirmPassword,
-          social_id: formData.deleteCode,
-          name_surname: formData.fullName,
-          phone: formData.phone,
+  const formik = useFormik({
+    initialValues: {
+      fullName: '',
+      username: '',
+      email: '',
+      password: '',
+      confirmPassword: '',
+      phoneCountry: 'TR',
+      phone: '',
+      deleteCode: '',
+      agree: false
+    },
+    validationSchema: Yup.object({
+      fullName: Yup.string()
+        .min(3, 'Ad soyad en az 3 karakter olmalıdır.')
+        .max(50, 'Ad soyad en fazla 50 karakter olmalıdır.')
+        .matches(/^[a-zA-ZçÇğĞıİöÖşŞüÜ]+(?:\s[a-zA-ZçÇğĞıİöÖşŞüÜ]+)+$/, 'Lütfen geçerli bir ad ve soyad girin (Örn: Mert Yılmaz).')
+        .required('Ad soyad alanı zorunludur.'),
+      username: Yup.string()
+        .min(4, 'Kullanıcı adı en az 4 karakter olmalıdır.')
+        .max(16, 'Kullanıcı adı en fazla 16 karakter olmalıdır.')
+        .matches(/^[a-zA-Z0-9]+$/, 'Kullanıcı adı boşluk, Türkçe veya özel karakter içeremez. Sadece İngilizce harf ve rakamlar kullanılabilir.')
+        .required('Kullanıcı adı (ID) zorunludur.'),
+      email: Yup.string()
+        .email('Geçersiz e-posta adresi formatı.')
+        .max(64, 'E-posta en fazla 64 karakter olmalıdır.')
+        .required('E-posta alanı zorunludur.'),
+      password: Yup.string()
+        .min(6, 'Şifre en az 6 karakter olmalıdır.')
+        .max(20, 'Şifre en fazla 20 karakter olmalıdır.')
+        .required('Şifre alanı zorunludur.'),
+      confirmPassword: Yup.string()
+        .max(20, 'Şifre tekrarı en fazla 20 karakter olmalıdır.')
+        .oneOf([Yup.ref('password'), null], 'Şifreler birbiriyle uyuşmuyor.')
+        .required('Şifre tekrarı zorunludur.'),
+      deleteCode: Yup.string()
+        .matches(/^[a-zA-Z0-9]{7}$/, 'Karakter silme kodu tam olarak 7 haneli İngilizce harf ve rakamlardan oluşmalıdır.')
+        .required('Karakter silme kodu zorunludur.'),
+      phoneCountry: Yup.string().required(),
+      phone: Yup.string()
+        .nullable()
+        .max(20, 'Telefon numarası en fazla 20 karakter olmalıdır.')
+        .test('phone-validation', 'Geçersiz telefon numarası.', function (value) {
+          if (!value) return true; // Optional field
+          const { phoneCountry } = this.parent;
+          try {
+            const phoneNumber = parsePhoneNumberFromString(value, phoneCountry);
+            return phoneNumber ? phoneNumber.isValid() : false;
+          } catch {
+            return false;
+          }
         }),
-      })
+      agree: Yup.boolean()
+        .oneOf([true], 'Üyelik Sözleşmesini kabul etmelisiniz.')
+        .required('Üyelik Sözleşmesini kabul etmelisiniz.')
+    }),
+    onSubmit: async (values) => {
+      setError('')
+      setSuccess('')
+      setLoading(true)
 
-      const data = await response.json()
+      try {
+        const response = await fetch('http://localhost:8000/register', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            login: values.username,
+            email: values.email,
+            password: values.password,
+            repassword: values.confirmPassword,
+            social_id: values.deleteCode,
+            name_surname: values.fullName,
+            phone: values.phone ? `${COUNTRIES.find(c => c.code === values.phoneCountry)?.dialCode}${values.phone.replace(/\D/g, '')}` : '',
+          }),
+        })
 
-      if (!response.ok) {
-        throw new Error(data.detail || 'Kayıt sırasında bir hata oluştu.')
+        const data = await response.json()
+
+        if (!response.ok) {
+          throw new Error(data.detail || 'Kayıt sırasında bir hata oluştu.')
+        }
+
+        setSuccess(data.message || 'Kayıt başarıyla oluşturuldu! Yönlendiriliyorsunuz...')
+        formik.resetForm()
+
+        setTimeout(() => {
+          navigate('/')
+        }, 3000)
+      } catch (err) {
+        setError(err.message)
+      } finally {
+        setLoading(false)
       }
-
-      setSuccess(data.message || 'Kayıt başarıyla oluşturuldu! Yönlendiriliyorsunuz...')
-
-      setFormData({
-        fullName: '',
-        username: '',
-        email: '',
-        password: '',
-        confirmPassword: '',
-        phone: '',
-        deleteCode: '',
-      })
-      setAgree(false)
-
-      setTimeout(() => {
-        navigate('/')
-      }, 3000)
-    } catch (err) {
-      setError(err.message)
-    } finally {
-      setLoading(false)
     }
-  }
+  })
 
   return (
     <>
@@ -116,6 +146,15 @@ export const Register = () => {
 
         .m2-input::placeholder {
           color: #594531;
+        }
+
+        .m2-input-error {
+          border-color: #c23131 !important;
+        }
+        
+        .m2-input-error:focus {
+          border-color: #f87171 !important;
+          box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.8), 0 0 8px rgba(248, 113, 113, 0.3) !important;
         }
 
         .m2-btn {
@@ -157,31 +196,67 @@ export const Register = () => {
             </div>
           )}
 
-          <form onSubmit={handleSubmit} className="space-y-4">
+          <form onSubmit={formik.handleSubmit} className="space-y-4">
             <div className="grid gap-5">
               <div>
                 <label className="block text-lg m2-label-text mb-1.5 tracking-wide">AD SOYAD</label>
                 <input
                   type="text"
                   name="fullName"
-                  required
                   placeholder="Örn: Ahmet Yılmaz"
-                  value={formData.fullName}
-                  onChange={handleChange}
-                  className="w-full p-3 text-sm rounded-sm m2-input"
+                  maxLength={50}
+                  value={formik.values.fullName}
+                  onChange={(e) => {
+                    const rawVal = e.target.value;
+                    if (rawVal.length <= 50) {
+                      const words = rawVal.split(' ');
+                      const formattedWords = words.map((word) => {
+                        if (!word) return '';
+                        let first = word.charAt(0);
+                        if (first === 'i') first = 'İ';
+                        else if (first === 'ı') first = 'I';
+                        else first = first.toUpperCase();
+
+                        const rest = word.slice(1).toLowerCase()
+                          .replace(/I/g, 'ı')
+                          .replace(/İ/g, 'i');
+                        return first + rest;
+                      });
+                      formik.setFieldValue('fullName', formattedWords.join(' '));
+                    }
+                  }}
+                  onBlur={formik.handleBlur}
+                  className={`w-full p-3 text-sm rounded-sm m2-input ${formik.touched.fullName && formik.errors.fullName ? 'm2-input-error' : ''
+                    }`}
                 />
+                {formik.touched.fullName && formik.errors.fullName && (
+                  <div className="text-red-400 text-xs mt-1 block font-semibold italic">
+                    ⚠️ {formik.errors.fullName}
+                  </div>
+                )}
               </div>
               <div>
                 <label className="block text-lg m2-label-text mb-1.5 tracking-wide">KULLANICI ADI (ID)</label>
                 <input
                   type="text"
                   name="username"
-                  required
                   placeholder="Oyuna giriş ID'niz"
-                  value={formData.username}
-                  onChange={handleChange}
-                  className="w-full p-3 text-sm rounded-sm m2-input"
+                  maxLength={16}
+                  value={formik.values.username}
+                  onChange={(e) => {
+                    if (e.target.value.length <= 16) {
+                      formik.handleChange(e);
+                    }
+                  }}
+                  onBlur={formik.handleBlur}
+                  className={`w-full p-3 text-sm rounded-sm m2-input ${formik.touched.username && formik.errors.username ? 'm2-input-error' : ''
+                    }`}
                 />
+                {formik.touched.username && formik.errors.username && (
+                  <div className="text-red-400 text-xs mt-1 block font-semibold italic">
+                    ⚠️ {formik.errors.username}
+                  </div>
+                )}
               </div>
             </div>
 
@@ -190,12 +265,23 @@ export const Register = () => {
               <input
                 type="email"
                 name="email"
-                required
                 placeholder="ornek@eposta.com"
-                value={formData.email}
-                onChange={handleChange}
-                className="w-full p-3 text-sm rounded-sm m2-input"
+                maxLength={64}
+                value={formik.values.email}
+                onChange={(e) => {
+                  if (e.target.value.length <= 64) {
+                    formik.handleChange(e);
+                  }
+                }}
+                onBlur={formik.handleBlur}
+                className={`w-full p-3 text-sm rounded-sm m2-input ${formik.touched.email && formik.errors.email ? 'm2-input-error' : ''
+                  }`}
               />
+              {formik.touched.email && formik.errors.email && (
+                <div className="text-red-400 text-xs mt-1 block font-semibold italic">
+                  ⚠️ {formik.errors.email}
+                </div>
+              )}
             </div>
 
             <div className="grid grid-cols-1 gap-5">
@@ -204,24 +290,46 @@ export const Register = () => {
                 <input
                   type="password"
                   name="password"
-                  required
                   placeholder="••••••••"
-                  value={formData.password}
-                  onChange={handleChange}
-                  className="w-full p-3 text-sm rounded-sm m2-input"
+                  maxLength={20}
+                  value={formik.values.password}
+                  onChange={(e) => {
+                    if (e.target.value.length <= 20) {
+                      formik.handleChange(e);
+                    }
+                  }}
+                  onBlur={formik.handleBlur}
+                  className={`w-full p-3 text-sm rounded-sm m2-input ${formik.touched.password && formik.errors.password ? 'm2-input-error' : ''
+                    }`}
                 />
+                {formik.touched.password && formik.errors.password && (
+                  <div className="text-red-400 text-xs mt-1 block font-semibold italic">
+                    ⚠️ {formik.errors.password}
+                  </div>
+                )}
               </div>
               <div>
                 <label className="block text-lg m2-label-text mb-1.5 tracking-wide">TEKRAR ŞİFRE</label>
                 <input
                   type="password"
                   name="confirmPassword"
-                  required
                   placeholder="••••••••"
-                  value={formData.confirmPassword}
-                  onChange={handleChange}
-                  className="w-full p-3 text-sm rounded-sm m2-input"
+                  maxLength={20}
+                  value={formik.values.confirmPassword}
+                  onChange={(e) => {
+                    if (e.target.value.length <= 20) {
+                      formik.handleChange(e);
+                    }
+                  }}
+                  onBlur={formik.handleBlur}
+                  className={`w-full p-3 text-sm rounded-sm m2-input ${formik.touched.confirmPassword && formik.errors.confirmPassword ? 'm2-input-error' : ''
+                    }`}
                 />
+                {formik.touched.confirmPassword && formik.errors.confirmPassword && (
+                  <div className="text-red-400 text-xs mt-1 block font-semibold italic">
+                    ⚠️ {formik.errors.confirmPassword}
+                  </div>
+                )}
               </div>
             </div>
 
@@ -232,50 +340,128 @@ export const Register = () => {
                   type="text"
                   name="deleteCode"
                   maxLength="7"
-                  required
                   placeholder="7 Haneli Kod"
-                  value={formData.deleteCode}
-                  onChange={handleChange}
-                  className="w-full p-3 text-sm rounded-sm m2-input"
+                  value={formik.values.deleteCode}
+                  onChange={(e) => {
+                    const rawVal = e.target.value;
+                    const cleanVal = rawVal.replace(/[^a-zA-Z0-9]/g, '');
+                    if (cleanVal.length <= 7) {
+                      formik.setFieldValue('deleteCode', cleanVal);
+                    }
+                  }}
+                  onBlur={formik.handleBlur}
+                  className={`w-full p-3 text-sm rounded-sm m2-input ${formik.touched.deleteCode && formik.errors.deleteCode ? 'm2-input-error' : ''
+                    }`}
                 />
+                {formik.touched.deleteCode && formik.errors.deleteCode && (
+                  <div className="text-red-400 text-xs mt-1 block font-semibold italic">
+                    ⚠️ {formik.errors.deleteCode}
+                  </div>
+                )}
               </div>
             </div>
 
             <div>
               <label className="block text-lg m2-label-text mb-1.5 tracking-wide">TELEFON NUMARANIZ</label>
-              <input
-                type="tel"
-                name="phone"
-                placeholder="05xx xxx xx xx"
-                value={formData.phone}
-                onChange={handleChange}
-                className="w-full p-3 text-sm rounded-sm m2-input"
-              />
+              <div className="flex gap-2">
+                <div className="relative w-32">
+                  <select
+                    name="phoneCountry"
+                    value={formik.values.phoneCountry}
+                    onChange={async (e) => {
+                      const newCountry = e.target.value;
+                      await formik.setFieldValue('phoneCountry', newCountry);
+
+                      if (formik.values.phone) {
+                        const countryConfig = COUNTRIES.find(c => c.code === newCountry);
+                        const maxDigits = countryConfig?.maxDigits || 15;
+
+                        let cleanDigits = formik.values.phone.replace(/\D/g, '');
+
+                        if (newCountry === 'TR' && cleanDigits.length > 0 && cleanDigits[0] !== '5') {
+                          cleanDigits = '';
+                        } else if (cleanDigits.length > maxDigits) {
+                          cleanDigits = cleanDigits.slice(0, maxDigits);
+                        }
+
+                        const formatted = new AsYouType(newCountry).input(cleanDigits);
+                        await formik.setFieldValue('phone', formatted);
+                        formik.validateField('phone');
+                      }
+                    }}
+                    className="w-full p-3 pr-8 text-sm rounded-sm m2-input cursor-pointer appearance-none bg-[url('data:image/svg+xml;charset=UTF-8,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20width%3D%2212%22%20height%3D%2212%22%20viewBox%3D%220%200%2012%2012%22%3E%3Cpath%20fill%3D%22%23d1a84b%22%20d%3D%22M10.293%203.293L6%207.586%201.707%203.293A1%201%200%2000.293%204.707l5%205a1%201%200%20001.414%200l5-5a1%201%200%2010-1.414-1.414z%22%2F%3E%3C%2Fsvg%3E')] bg-no-repeat bg-[right_0.6rem_center]"
+                  >
+                    {COUNTRIES.map((country) => (
+                      <option key={country.code} value={country.code} className="bg-[#090503] text-amber-100">
+                        {country.emoji} {country.dialCode}
+                      </option>
+                    ))}
+                  </select>
+                </div>
+                <div className="flex-1">
+                  <input
+                    type="tel"
+                    name="phone"
+                    maxLength={20}
+                    placeholder={COUNTRIES.find(c => c.code === formik.values.phoneCountry)?.placeholder || 'Telefon numaranız'}
+                    value={formik.values.phone}
+                    onChange={(e) => {
+                      const rawVal = e.target.value;
+                      const cleanDigits = rawVal.replace(/\D/g, ''); // only digits
+
+                      const countryConfig = COUNTRIES.find(c => c.code === formik.values.phoneCountry);
+                      const maxDigits = countryConfig?.maxDigits || 15;
+
+                      // TR: first digit must be 5
+                      if (formik.values.phoneCountry === 'TR' && cleanDigits.length > 0 && cleanDigits[0] !== '5') {
+                        return;
+                      }
+
+                      if (cleanDigits.length <= maxDigits) {
+                        const formatted = new AsYouType(formik.values.phoneCountry).input(cleanDigits);
+                        formik.setFieldValue('phone', formatted);
+                      }
+                    }}
+                    onBlur={formik.handleBlur}
+                    className={`w-full p-3 text-sm rounded-sm m2-input ${formik.touched.phone && formik.errors.phone ? 'm2-input-error' : ''
+                      }`}
+                  />
+                </div>
+              </div>
+              {formik.touched.phone && formik.errors.phone && (
+                <div className="text-red-400 text-xs mt-1 block font-semibold italic">
+                  ⚠️ {formik.errors.phone}
+                </div>
+              )}
             </div>
 
-            <div className="flex items-center mt-6 pt-2">
+            <div className="flex flex-col mt-6 pt-2">
               <div className="flex items-center h-5">
                 <input
                   id="sozlesme"
                   type="checkbox"
-                  required
-                  checked={agree}
-                  onChange={(e) => setAgree(e.target.checked)}
+                  name="agree"
+                  checked={formik.values.agree}
+                  onChange={formik.handleChange}
+                  onBlur={formik.handleBlur}
                   style={{ accentColor: '#593e1f' }}
                   className="w-4 h-4 rounded-sm cursor-pointer border-[#4a3319] bg-[#090503]"
                 />
-              </div>
-              <div className="ml-2 text-lg">
-                <label htmlFor="sozlesme" className="text-[#594531] font-semibold cursor-pointer select-none">
-                  <span className="m2-label-text underline hover:text-[#f1cb46]">Üyelik Sözleşmesi</span>'ni okudum ve kabul ediyorum.
+                <label htmlFor="sozlesme" className="ml-2 text-lg text-[#594531] font-semibold cursor-pointer select-none">
+                  <span className="m2-label-text underline hover:text-[#f1cb46]">Üyelik Sözleşmesi</span>&apos;ni okudum ve kabul ediyorum.
                 </label>
               </div>
+              {formik.touched.agree && formik.errors.agree && (
+                <div className="text-red-400 text-xs mt-2 block font-semibold italic">
+                  ⚠️ {formik.errors.agree}
+                </div>
+              )}
             </div>
 
             <div className="pt-4">
               <button
                 type="submit"
-                disabled={loading}
+                disabled={loading || !formik.isValid}
                 className="w-full m2-btn font-bold py-3.5 px-4 rounded-sm uppercase tracking-widest text-sm transition-all duration-200 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
               >
                 {loading ? 'KAYIT EDİLİYOR...' : 'KAYIT OL'}

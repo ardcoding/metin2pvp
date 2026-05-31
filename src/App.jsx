@@ -5,6 +5,7 @@ import { Homepage } from './pages/Homepage'
 import { Ranking } from './pages/Ranking'
 import { Register } from './pages/Register'
 import { Support } from './pages/Support'
+import { Profile } from './pages/Profile'
 
 function App() {
   return (
@@ -15,6 +16,7 @@ function App() {
           <Route path="register" element={<Register />} />
           <Route path="ranking" element={<Ranking />} />
           <Route path="support" element={<Support />} />
+          <Route path="profile" element={<Profile />} />
         </Route>
       </Routes>
     </BrowserRouter>
