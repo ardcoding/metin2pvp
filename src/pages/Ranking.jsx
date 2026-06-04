@@ -26,11 +26,11 @@ export const Ranking = () => {
   ]
 
   const guildRankings = [
-    { rank: 1, name: 'HUKUMDAR', members: 45, power: 'S+', exp: '999M' },
-    { rank: 2, name: 'ASGARD', members: 38, power: 'S', exp: '728M' },
-    { rank: 3, name: 'KARA KARTAL', members: 34, power: 'A+', exp: '621M' },
-    { rank: 4, name: 'GECE AVCILARI', members: 29, power: 'A', exp: '514M' },
-    { rank: 5, name: 'FIRTINA', members: 24, power: 'B+', exp: '405M' }
+    { rank: 1, name: 'HUKUMDAR', members: 45, level: 20, exp: '999M' },
+    { rank: 2, name: 'ASGARD', members: 38, level: 20, exp: '728M' },
+    { rank: 3, name: 'KARA KARTAL', members: 34, level: 19, exp: '621M' },
+    { rank: 4, name: 'GECE AVCILARI', members: 29, level: 18, exp: '514M' },
+    { rank: 5, name: 'FIRTINA', members: 24, level: 17, exp: '405M' }
   ]
 
   return (
@@ -72,7 +72,7 @@ export const Ranking = () => {
                     <th className="px-3 py-3">#</th>
                     <th className="px-3 py-3">Lonca</th>
                     <th className="px-3 py-3">Üye</th>
-                    <th className="px-3 py-3">Güç</th>
+                    <th className="px-3 py-3">Seviye</th>
                     <th className="px-3 py-3">EXP</th>
                   </>
                 )}
@@ -94,7 +94,7 @@ export const Ranking = () => {
                     <>
                       <td className="px-3 py-3">{item.name}</td>
                       <td className="px-3 py-3">{item.members}</td>
-                      <td className="px-3 py-3">{item.power}</td>
+                      <td className="px-3 py-3">{item.level}</td>
                       <td className="px-3 py-3">{item.exp}</td>
                     </>
                   )}

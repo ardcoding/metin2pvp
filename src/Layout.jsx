@@ -164,11 +164,11 @@ export const Layout = () => {
               <h2 className="text-amber-100 text-lg font-bold uppercase text-center mb-4 tracking-widest border-b border-amber-900/20 pb-2">En İyi Loncalar</h2>
               <div className="space-y-2">
                 {[
-                  { name: 'Kara Kartallar', members: 84, power: 'A+' },
-                  { name: 'Gümüş Ejder', members: 76, power: 'A' },
-                  { name: 'Kırmızı Aslan', members: 68, power: 'B+' },
-                  { name: 'Gece Avcıları', members: 59, power: 'B' },
-                  { name: 'Fırtına Klanı', members: 51, power: 'B-' }
+                  { name: 'Kara Kartallar', members: 84, level: 20 },
+                  { name: 'Gümüş Ejder', members: 76, level: 20 },
+                  { name: 'Kırmızı Aslan', members: 68, level: 19 },
+                  { name: 'Gece Avcıları', members: 59, level: 18 },
+                  { name: 'Fırtına Klanı', members: 51, level: 17 }
                 ].map((guild, index) => (
                   <div key={guild.name} className="flex justify-between items-center px-2 py-1 bg-black/20 border border-amber-900/10 hover:border-amber-700/30 transition-colors">
                     <div className="flex items-center gap-2">
@@ -179,7 +179,7 @@ export const Layout = () => {
                     </div>
                     <div className="text-right">
                       <p className="text-amber-400 text-[10px] font-mono">Üye {guild.members}</p>
-                      <p className="text-amber-200 text-[10px] uppercase">Güç {guild.power}</p>
+                      <p className="text-amber-200 text-[10px] uppercase">Lv. {guild.level}</p>
                     </div>
                   </div>
                 ))}
