@@ -63,7 +63,7 @@
 
 .sakarya2-overlay {
   position: absolute;
-  top: 5vh;
+  top: 40px;
   left: 50%;
   transform: translateX(-50%);
   z-index: 35;

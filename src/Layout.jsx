@@ -114,9 +114,6 @@ export const Layout = () => {
   return (
     <div className="min-h-screen h-full relative bg-cover bg-center overflow-x-hidden">
       <div className="absolute top-0 left-0 w-full h-10 header z-50" />
-      <div className="sakarya2-overlay flex items-center justify-center" aria-hidden="true">
-        <img src="/logo.png" alt="SAKARYA2 Logo" className="sakarya2-logo" />
-      </div>
 
       <div
         className="flex justify-center transition-all duration-300 ease-out pb-48"
@@ -130,7 +127,10 @@ export const Layout = () => {
           minHeight: '100vh'
         }}
       >
-        <div className="flex mt-[50vh] w-187.5 mx-auto border-x border-amber-900/30 relative shadow-2xl min-h-200 bg-black/40">
+        <div className="sakarya2-overlay flex items-center justify-center" aria-hidden="true">
+          <img src="/logo.png" alt="SAKARYA2 Logo" className="sakarya2-logo" />
+        </div>
+        <div className="flex mt-[380px] w-187.5 mx-auto border-x border-amber-900/30 relative shadow-2xl min-h-200 bg-black/40">
           <div className="left-side absolute -left-60 top-0 w-60">
             <div className="w-full mb-4">
               <h2 className="text-amber-100 text-lg font-bold uppercase text-center mb-4 tracking-widest border-b border-amber-900/20 pb-2">En İyi Oyuncular</h2>
